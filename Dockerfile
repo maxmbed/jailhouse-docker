@@ -30,10 +30,6 @@ RUN apt-get install -y \
 # https://buildroot.org/downloads/manual/manual.html#requirement-optional
 RUN apt-get install -y \
         python3 \
-        python3-pip \
-        python3-venv \
-# ssl/tls dependecies for pip \
-        libssl-dev libncurses5-dev libsqlite3-dev libreadline-dev libtk8.6 libgdm-dev libdb4o-cil-dev libpcap-dev \
 # User Interface dependecies \
         libncurses5 libncurses-dev \
 #       qt5 \
@@ -53,6 +49,14 @@ RUN apt-get install -y \
 # Editor \
         vim
 
+# Dependecy for jailhouse
+RUN apt-get install -y \
+        python3-pip \
+        python3-venv \
+        python3-mako \
+#       ssl/tls dependecies for pip \
+        libssl-dev libncurses5-dev libsqlite3-dev libreadline-dev libtk8.6 libgdm-dev libdb4o-cil-dev libpcap-dev
+
 WORKDIR /jailhouse-build
 
 # Get Buildroot, jaihouse hypervisor and linux kernel for jailhouse
@@ -62,6 +66,7 @@ RUN git clone --depth 1 -b 2023.11 https://gitlab.com/buildroot.org/buildroot.gi
     tar -cvf linux.tar linux
 
 ADD configs/ ./configs/
+ADD scripts/ ./scripts
 RUN mkdir logs materials
 
 COPY ./docker-entrypoint.sh ./
