@@ -1,8 +1,13 @@
 #!/bin/bash
 
+workdir=/jailhouse-build
+
 mkdir -p materials
+
 docker run \
-  --mount type=bind,source="$(pwd)/materials",destination=/jailhouse-build/materials \
+  --rm \
+  --mount type=volume,source=jailhouse-build-cache,destination=${workdir}/cache \
+  --mount type=bind,source="$(pwd)/materials",destination=${workdir}/materials \
   -it \
   jailhouse-build \
-  $1 $2
+  $@

@@ -5,8 +5,9 @@ rootdir=/
 workdir=${rootdir}jailhouse-build
 materials_dir=${workdir}/materials
 buildroot_dir=${workdir}/buildroot
+cache_dir=${workdir}/cache
 log_dir=${workdir}/logs
-sdk_dir=${materials_dir}/sdk
+sdk_dir=${cache_dir}/sdk
 configs_dir=${workdir}/configs
 image_dir=${materials_dir}/images
 
@@ -68,14 +69,14 @@ buildroot_build_sdk() {
   fi
   log_file "build success" ${status_file}
 
-  # Export sdk archive
+  # Cache sdk archive
   mkdir -p ${sdk_dir}
   cp ${buildroot_dir}/output/images/${sdk_archive} ${sdk_dir}
   if [ $? -ne 0 ]; then
-    log_file "export sdk failure" ${status_file}
+    log_file "cache sdk failure" ${status_file}
     return 1
   fi
-  log_file "export sdk success" ${status_file}
+  log_file "cache sdk success" ${status_file}
 
   log_file "build sdk done" ${status_file}
   return 0
@@ -92,18 +93,6 @@ buildroot_build_image() {
   rm -fv ${status_file}
 
   log_file "build image start" ${status_file}
-
-  # Extract sdk
-  cd ${sdk_dir}
-
-  tar -xzvf ${sdk_archive} &> ${log_file_path}
-  if [ $? -ne 0 ]; then
-    log_shell "extract sdk failure"
-    log_file "extract failure" ${status_file}
-    return 1
-  fi 
-
-  log_file "extract sdk success" ${status_file}
 
   # Set image config
   cp ${configs_dir}/${defconfig} ${buildroot_dir}/configs
@@ -146,13 +135,26 @@ start_system() {
   local sdk_name=x86_64-jailhouse-linux-gnu_sdk-buildroot
   local qemu_system=${sdk_dir}/${sdk_name}/bin/qemu-system-x86_64
 
+  #${qemu_system} \
+  #    -M pc \
+  #    -kernel ${image_dir}/bzImage \
+  #    -drive file=${image_dir}/rootfs.ext2,if=virtio,format=raw \
+  #    -append "root=/dev/vda console=ttyS0" \
+  #    -net user,hostfwd=tcp:127.0.0.1:3333-:22 \
+  #    -net nic,model=virtio \
+  #    -nographic
+
   ${qemu_system} \
-      -M pc \
+      -machine q35 \
+      -m 1G \
+      -enable-kvm \
+      -smp 4 \
+      -cpu host,-kvm-pv-eoi,-kvm-pv-ipi,-kvm-asyncpf,-kvm-steal-time,-kvmclock \
       -kernel ${image_dir}/bzImage \
       -drive file=${image_dir}/rootfs.ext2,if=virtio,format=raw \
-      -append "root=/dev/vda console=ttyS0" \
-      -net user,hostfwd=tcp:127.0.0.1:3333-:22 \
-      -net nic,model=virtio \
+      -append "root=/dev/vda console=ttyS0 memmap=82M$0x3a000000 vmalloc=80M" \
+      -netdev user,id=net -device e1000e,addr=2.0,netdev=net \
+      -device pcie-pci-bridge \
       -nographic
 
   log_shell "exit system"

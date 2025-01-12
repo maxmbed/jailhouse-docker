@@ -58,6 +58,7 @@ RUN apt-get install -y \
         libssl-dev libncurses5-dev libsqlite3-dev libreadline-dev libtk8.6 libgdm-dev libdb4o-cil-dev libpcap-dev
 
 WORKDIR /jailhouse-build
+VOLUME /jailhouse-build/cache
 
 # Get Buildroot, jaihouse hypervisor and linux kernel for jailhouse
 RUN git clone --depth 1 -b 2023.11 https://gitlab.com/buildroot.org/buildroot.git && \

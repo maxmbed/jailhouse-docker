@@ -1,4 +1,4 @@
 # Materials directory
 
-Content build artifacts such as logs, sdk and images
+Content build artifacts such as logs and images
 Ignored by version control
