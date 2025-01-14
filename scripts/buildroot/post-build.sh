@@ -12,10 +12,8 @@ fi
 
 topdir=/jailhouse-build/buildroot
 
-# Install python depency for Jailhouse
-python3 -m venv ${topdir}/../.jailhouse-venv
+# Enter Jailhouse python venv
 . ${topdir}/../.jailhouse-venv/bin/activate
-pip3 install mako
 
 # Build Jailhouse hypervisor, inmate and cell
 export PATH=${topdir}/../materials/sdk/x86_64-jailhouse-linux-gnu_sdk-buildroot/bin:$PATH
@@ -34,5 +32,5 @@ mkdir -p ${TARGET_DIR}/etc/jailhouse/configs ${TARGET_DIR}/etc/jailhouse/inmates
 cp -r ${topdir}/../jailhouse/configs/x86/*.cell ${TARGET_DIR}/etc/jailhouse/configs
 cp -r ${topdir}/../jailhouse/inmates/demos/x86/*.bin -t ${TARGET_DIR}/etc/jailhouse/inmates
 
-# Leave python venv
+# Leave Jailhouse python venv
 deactivate

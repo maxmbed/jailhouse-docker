@@ -66,6 +66,12 @@ RUN git clone --depth 1 -b 2023.11 https://gitlab.com/buildroot.org/buildroot.gi
     git clone --depth 1 -b jailhouse-enabling/5.15 https://github.com/siemens/linux.git &&\
     tar -cvf linux.tar linux
 
+# Prepare python venv for post jailhouse build
+RUN python3 -m venv .jailhouse-venv && \
+    . .jailhouse-venv/bin/activate && \
+    pip3 install mako && \
+    deactivate
+
 ADD configs/ ./configs/
 ADD scripts/ ./scripts
 RUN mkdir logs materials
